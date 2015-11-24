@@ -5,9 +5,19 @@
  *
  */
 namespace App\Modules\Admin\Controllers;
+use Session;
+use Input;
+use Illuminate\Http\Request;
+
 date_default_timezone_set('Asia/Ho_Chi_Minh');
 class BaseController extends \Controller {
 
+	public function __construct() {
+
+		if ($_POST) {
+			$this->beforeSave();
+		}
+	}
 	/**
 	 * layout to use
 	 * @var View
@@ -29,6 +39,14 @@ class BaseController extends \Controller {
 		\Session::forget('User');
 		\Auth::logout(); // log the user out of our application
 		return \Redirect::to('/admin/login'); // redirect the user to the login screen
+	}
+
+	public function beforeSave() {
+		$token = Session::token();
+		$postToken = Input::get('_token');
+		if($token !== $postToken) {
+			$this->logout();
+		}
 	}
 
 }

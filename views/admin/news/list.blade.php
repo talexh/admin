@@ -24,6 +24,7 @@
 		</tr>
 		</thead>
 		<tbody>
+		@if($newss)
 		@foreach($newss as $news)
 		<tr>
 			<td>{{ Form::checkbox('data[News][id]', $news->id, false) }}</td>
@@ -43,8 +44,9 @@
 			</td>
 		</tr>
 		@endforeach
+		@endif
 		<tr>
-			<td colspan="5">
+			<td colspan="6">
 				{{ $newss->links() }}
 			</td>
 		</tr>

@@ -5,6 +5,7 @@ use Input;
 use Hash;
 use Lang;
 use Config;
+use Session;
 use App\Modules\Admin\Models\News;
 use App\Modules\Admin\Models\Apps;
 use App\Modules\Admin\Models\Category;
@@ -50,7 +51,13 @@ class AdminController extends BaseController {
 		$title = \Lang::get('admin::common.profile');
 		$userSession = \Session::get ( 'User' );
 		$user = User::find ( $userSession->id );
-		return \View::make ( 'admin::admin/profile', array('profile'=>$user, 'title'=>$title) );
+
+		$params = array();
+		$params['title'] = $title;
+		$params['ctrl'] = $this->_name.'/profile';
+		$params['profile'] = $user;
+
+		return \View::make ( 'admin::admin/profile', $params );
 	}
 
 	/**
@@ -80,16 +87,20 @@ class AdminController extends BaseController {
 	* @return void
 	*/
 	public function export(){
+
 		$imageConfigs = \Config::get('admin::image');
 
 		$params['apps'] = Apps::getList();
 		$params['title'] = \Lang::get('admin::common.export-data4app');
-		$params['ctrl'] = $this->_name;
+		$params['ctrl'] = $this->_name.'/export';
 
 		return \View::make('admin::admin/export', $params);
 	}
-
-	public function doexport() {
+	/**
+	 * Export data to json
+	 * @return void
+	 */
+	public function doExport() {
 		$imageConfigs = \Config::get('admin::image');
 		$appId = \Input::get('app_id');
 
@@ -97,21 +108,22 @@ class AdminController extends BaseController {
 		$data = array();
 
 		if($appId == 'all') {
-			$apps = Apps::scopeOfReady()->get();
+			$apps = Apps::ofReady()->get();
 			foreach($apps as $app) {
 				foreach($categories as $item) {
-					$news = News::scopeOfReadyByCategoryNApp($item->id, $app->id)->orderBy('sorting')->get();
-					if(!empty($news)) {
-						$newsList = array();
-						foreach($news as $itemNews) {
-							$newsList[] = array('id'=>$itemNews->id,'categoryId'=>$itemNews->category_id,'title'=>$itemNews->title,'description'=>$itemNews->description, 'image_name'=>$itemNews->image_name.'.'.$itemNews->image_ext,'allowed_resize'=>$itemNews->allowed_resize,'sound'=>basename($itemNews->sound),'sorting'=>$itemNews->sorting,'created'=>$itemNews->created_at->toDateTimeString(),'updated'=>$itemNews->updated_at->toDateTimeString());
-						}
-						$data['news'][$item->id] = $newsList;
+					$news = News::ofReadyFilter($item->id, $app->id)->orderBy('sorting')->get();
+
+					if(empty($news)) continue;
+
+					$newsList = array();
+					foreach($news as $itemNews) {
+						$newsList[] = array('id'=>$itemNews->id,'categoryId'=>$itemNews->category_id,'title'=>$itemNews->title,'description'=>$itemNews->description, 'image_name'=>$itemNews->image_name.'.'.$itemNews->image_ext,'allowed_resize'=>$itemNews->allowed_resize,'sound'=>basename($itemNews->sound),'sorting'=>$itemNews->sorting,'created'=>$itemNews->created_at->toDateTimeString(),'updated'=>$itemNews->updated_at->toDateTimeString());
 					}
+					$data['news'][$item->id] = $newsList;
 					$data['categories'][] = array('id'=>$item->id,'title'=>$item->title, 'image_name'=>$item->image_name.'.'.$item->image_ext,'allowed_resize'=>$item->allowed_resize,'sorting'=>$item->sorting,'created'=>$item->created_at->toDateTimeString(),'updated'=>$item->updated_at->toDateTimeString());
 				}
 				$file = $imageConfigs['appfolder'] . 'app_'.$app->id.'_data.js';
-				$content = 'var jsonData = ' . json_encode($data) . ";\n";
+				$content = 'var jsonData = ' . json_encode($data) . ";\nvar APP_ID = ".$app->id . ";";
 				Utility::writeFile($file, $content);
 				\Lang::get('admin::news.title-page');
 				$params['exportMessage'] = \Lang::get('admin::common.export-success');
@@ -122,7 +134,7 @@ class AdminController extends BaseController {
 			}
 		} else {
 			foreach($categories as $item) {
-				$news = News::scopeOfReadyByCategoryNApp($item->id, $appId)->orderBy('sorting')->get();
+				$news = News::ofReadyFilter($item->id, $appId)->orderBy('sorting')->get();
 				$newsList = array();
 				foreach($news as $itemNews) {
 					$newsList[] = array('id'=>$itemNews->id,'categoryId'=>$itemNews->category_id,'title'=>$itemNews->title,'description'=>$itemNews->description, 'image_name'=>$itemNews->image_name.'.'.$itemNews->image_ext,'allowed_resize'=>$itemNews->allowed_resize,'sound'=>basename($itemNews->sound),'sorting'=>$itemNews->sorting,'created'=>$itemNews->created_at->toDateTimeString(),'updated'=>$itemNews->updated_at->toDateTimeString());
@@ -131,7 +143,7 @@ class AdminController extends BaseController {
 				$data['categories'][] = array('id'=>$item->id,'title'=>$item->title, 'image_name'=>$item->image_name.'.'.$item->image_ext,'allowed_resize'=>$item->allowed_resize,'sorting'=>$item->sorting,'created'=>$item->created_at->toDateTimeString(),'updated'=>$item->updated_at->toDateTimeString());
 			}
 			$file = $imageConfigs['appfolder'] . 'app_'.$appId.'_data.js';
-			$content = 'var jsonData = ' . json_encode($data) . ";\n";
+			$content = 'var jsonData = ' . json_encode($data) . ";\nvar APP_ID = ".$app->id . ";";
 			Utility::writeFile($file, $content);
 			\Lang::get('admin::news.title-page');
 			$params['exportMessage'] = \Lang::get('admin::common.export-success');
@@ -141,9 +153,17 @@ class AdminController extends BaseController {
 			$scaner->createService()->setPath($imageConfigs['upload_path'])->checking();
 		}
 
-		$params['title'] = \Lang::get('admin::common.export-data4app');
-		$params['ctrl'] = $this->_name;
+		$params['msg'] = \Lang::get('admin::common.export-data4app');
+		$params['status'] = "OK";
+		$params['url'] = "/admin/export";
+		//$params['ctrl'] = $this->_name;
+		echo json_encode($params);
+		die;
 
+
+	}
+
+	public function exportConfirm() {
 		return \View::make('admin::admin/export_result', $params);
 	}
 }

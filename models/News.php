@@ -33,9 +33,9 @@ class News extends Base {
      * @param \Object $query
      * @param Integer $categoryId
      * @param Integer $appId
-     * @use Model::ofReadyByCategoryNApp()->get();
+     * @use Model::ofReadyFilter()->get();
      */
-	public function scopeOfReadyByCategoryNApp($query, $categoryId, $appId) {
+	public function scopeOfReadyFilter($query, $categoryId, $appId) {
 		if($categoryId && $appId == 'all') {
 			return $query->whereDeleted(self::AVAILABLE)->whereStatus(self::ACTIVATE)->whereCategoryId($categoryId);
 		} else if($categoryId == 'all' && $appId) {
@@ -51,11 +51,22 @@ class News extends Base {
 	/**
 	 *
 	 * @param \Object $query
+	 * @param string $keyword
+	 * @use Model::ofKeyword()->get();
+	 */
+	public function scopeOfKeyword($query, $keyword) {
+		return $query->whereDeleted(self::AVAILABLE)->whereStatus(self::ACTIVATE)->where("title",'LIKE', '%'.$keyword.'%')->orWhere("description",'LIKE', '%'.$keyword.'%');
+	}
+
+	/**
+	 *
+	 * @param \Object $query
 	 * @param Integer $categoryId
+	 * @param Integer $appId
 	 * @use Model::ofReadyByCategory()->get();
 	 */
-	public function scopeOfReadyByCategory($query, $categoryId) {
-		return $query->whereDeleted(self::AVAILABLE)->whereStatus(self::ACTIVATE)->whereCategoryId($categoryId);
+	public function scopeOfReadyByCategory($query, $categoryId, $appId) {
+		return $query->whereDeleted(self::AVAILABLE)->whereStatus(self::ACTIVATE)->whereCategoryId($categoryId)->whereAppId($appId);
 	}
 
 	/**

@@ -33,10 +33,13 @@ class NewsController extends BaseController {
 	 *@return content of view
 	 */
 	public function index($categoryId = '', $appId = '') {
+
+		$news = News::ofReadyFilter($categoryId, $appId)->paginate(15);
+
+		// get list of categories to show in select box
 		$categories = Category::getList();
 
-		$news = News::scopeOfReadyByCategoryNApp($categoryId, $appId)->paginate(15);
-
+		// get list of apps to show in select box
 		$apps = Apps::getList();
 
 		$params = array();
@@ -47,6 +50,30 @@ class NewsController extends BaseController {
 		$params['ctrl'] = $this->_name;
 		$params['appId'] = $appId;
 		$params['categoryId'] = $categoryId;
+		return \View::make('admin::admin/'. $this->_name .'/list', $params);
+	}
+
+	/**
+	 *@return content of view
+	 */
+	public function search() {
+		$categories = Category::getList();
+
+		$keyword = \Input::get('searchKeyword');
+
+		$news = News::ofKeyword($keyword)->paginate(1000);
+
+		$apps = Apps::getList();
+
+		$params = array();
+		$params['newss'] = $news;
+		$params['categories'] = $categories;
+		$params['apps'] = $apps;
+		$params['title'] = \Lang::get('admin::news.title-page');
+		$params['ctrl'] = $this->_name;
+		$params['keyword'] = $keyword;
+		$params['appId'] = 'all';
+		$params['categoryId'] = 'all';
 		return \View::make('admin::admin/'. $this->_name .'/list', $params);
 	}
 

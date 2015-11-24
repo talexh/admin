@@ -24,22 +24,23 @@
             <span class="icon-bar"></span>
             <span class="icon-bar"></span>
           </button>
-		  <a class="navbar-brand" href="/admin/dash-board">Dashboard</a>
+		  <a class="navbar-brand" href="/admin/dash-board">{{Lang::get('admin::common.dashboard')}}</a>
         </div>
         <div class="navbar-collapse collapse">
           <ul class="nav navbar-nav navbar-right">
 			<li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Settings <span class="caret"></span></a>
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown"><i class="glyphicon glyphicon-cog"></i> {{Lang::get('admin::common.setting')}} <span class="caret"></span></a>
 				<ul class="dropdown-menu" role="menu">
-					<li><a href="/admin/profile">Profile</a></li>
-					<li><a href="/admin/users">Users</a></li>
-					<li><a href="/admin/export">Export Data For Apps</a></li>
+					<li class="{{{ (($ctrl=='admin/profile') ?'active':'') }}}"><a href="/admin/profile"><i class="glyphicon glyphicon-folder-open"></i> {{Lang::get('admin::common.profile')}}</a></li>
+					<li class="{{{ (($ctrl=='users') ?'active':'') }}}"><a href="/admin/users"><i class="glyphicon glyphicon-user"></i> {{Lang::get('admin::common.user.label')}}</a></li>
+					<li class="{{{ (($ctrl=='admin/export') ?'active':'') }}}"><a href="/admin/export"><i class="glyphicon glyphicon-export"></i> {{Lang::get('admin::common.export')}}</a></li>
 				</ul>
 			</li>
-            <li><a href="/admin/logout">Logout</a></li>
+            <li><a href="/admin/logout"><i class="glyphicon glyphicon-log-out"></i> {{Lang::get('admin::common.logout')}}</a></li>
           </ul>
-          <form class="navbar-form navbar-right">
-            <input type="text" class="form-control" placeholder="Search...">
+          <form class="navbar-form navbar-right" method="post" action="/admin/{{$ctrl . '/search'}}">
+          	<input type="hidden" name="_token" value="{{Session::token()}}">
+            <input type="text" name="searchKeyword" value="" class="form-control" placeholder="{{Lang::get('admin::common.search')}}...">
           </form>
         </div>
       </div>

@@ -33,4 +33,15 @@ return array(
 	'browse' => "Browse to upload",
 	'save-change' => 'Save Changes',
 	'all' => 'All',
+	'management' => 'Management',
+	'apps' => 'Apps',
+	'categories' => 'Categories',
+	'contents'=>'Contents',
+	'export' => 'Export Data For Apps',
+	'user.label' => "Users",
+	'setting'=> 'Settings',
+	'profile' => 'Profile',
+	'logout' => "Logout",
+	'search' => "Search",
+	'dashboard' => 'Dashboard'
 );

@@ -7,7 +7,7 @@ Route::group(array('prefix' => 'admin','before'=>'auth'), function () {
 	Route::get('dash-board', 		array('uses' => 'App\Modules\Admin\Controllers\AdminController@dashboard'));
 	Route::get('profile', 			array('uses' => 'App\Modules\Admin\Controllers\AdminController@profile'));
 	Route::get('export', 			array('uses' => 'App\Modules\Admin\Controllers\AdminController@export'));
-	Route::get('do-export', 			array('uses' => 'App\Modules\Admin\Controllers\AdminController@doexport'));
+	Route::post('do-export', 		array('uses' => 'App\Modules\Admin\Controllers\AdminController@doExport'));
 	Route::post('updateProfile',	array('uses' => 'App\Modules\Admin\Controllers\AdminController@updateProfile'));
 
 	// Route for user management
@@ -28,6 +28,7 @@ Route::group(array('prefix' => 'admin','before'=>'auth'), function () {
 
 	// Route for news management
 	Route::get('news/list/{categoryId?}/{appId?}', 			array('as'=>'newslist', 	'uses'=>'App\Modules\Admin\Controllers\NewsController@index'));
+	Route::post('news/search', 		array('as'=>'searchlist', 	'uses'=>'App\Modules\Admin\Controllers\NewsController@search'));
 	Route::get('news/edit/{id}',	array('as'=>'newsedit', 	'uses'=>'App\Modules\Admin\Controllers\NewsController@edit'));
 	Route::get('news/add', 			array('as'=>'newsadd', 		'uses'=>'App\Modules\Admin\Controllers\NewsController@add'));
 	Route::post('news/update', 		array('as'=>'newsupdate',	'uses'=>'App\Modules\Admin\Controllers\NewsController@update'));
