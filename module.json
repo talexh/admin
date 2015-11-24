@@ -1,0 +1,11 @@
+{
+	"enabled":  true,
+	"provider": [
+		"App\\Modules\\Admin\\AdminServiceProvider",
+		"App\\Modules\\Admin\\AnotherServiceProvider"
+	],
+	"include": [
+		"breadcrumbs.php"
+	],
+	"seeder": "App\\Modules\\Admin\\Seeds\\DatabaseSeeder"
+}
