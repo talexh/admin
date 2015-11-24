@@ -68,6 +68,10 @@ class AppsController extends BaseController {
 
 		} else {
 			$appObject = new Apps();
+			
+			$encrypted = \Crypt::encrypt('secret');
+			$token = substr($encrypted, strlen($encrypted)/2-17,50);
+			$appObject->uuid = $token;
 
 			$appDataForm['status'] = isset($appDataForm['status']) ? $appDataForm['status'] : 0;
 
