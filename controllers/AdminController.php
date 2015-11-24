@@ -122,7 +122,7 @@ class AdminController extends BaseController {
 					$data['news'][$item->id] = $newsList;
 					$data['categories'][] = array('id'=>$item->id,'title'=>$item->title, 'image_name'=>$item->image_name.'.'.$item->image_ext,'allowed_resize'=>$item->allowed_resize,'sorting'=>$item->sorting,'created'=>$item->created_at->toDateTimeString(),'updated'=>$item->updated_at->toDateTimeString());
 				}
-				$file = $imageConfigs['appfolder'] . 'app_'.$app->id.'_data.js';
+				$file = public_path('uploads/'.$app->folder) . '/app_'.$app->id.'_data.js';
 				$content = 'var jsonData = ' . json_encode($data) . ";\nvar APP_ID = ".$app->id . ";";
 				Utility::writeFile($file, $content);
 				\Lang::get('admin::news.title-page');
@@ -130,19 +130,22 @@ class AdminController extends BaseController {
 
 				// Check update and log for the app know have some new data updated
 				$scaner = new ScanerService();
-				$scaner->createService()->setPath($imageConfigs['upload_path'])->checking();
+				$scanPath = public_path('uploads/'.$app->folder);
+				$scaner->createService()->setPath($scanPath)->logging($app);
 			}
 		} else {
+			$app = null;
 			foreach($categories as $item) {
 				$news = News::ofReadyFilter($item->id, $appId)->orderBy('sorting')->get();
 				$newsList = array();
 				foreach($news as $itemNews) {
+					$app = $itemNews->Apps;
 					$newsList[] = array('id'=>$itemNews->id,'categoryId'=>$itemNews->category_id,'title'=>$itemNews->title,'description'=>$itemNews->description, 'image_name'=>$itemNews->image_name.'.'.$itemNews->image_ext,'allowed_resize'=>$itemNews->allowed_resize,'sound'=>basename($itemNews->sound),'sorting'=>$itemNews->sorting,'created'=>$itemNews->created_at->toDateTimeString(),'updated'=>$itemNews->updated_at->toDateTimeString());
 				}
 				$data['news'][$item->id] = $newsList;
 				$data['categories'][] = array('id'=>$item->id,'title'=>$item->title, 'image_name'=>$item->image_name.'.'.$item->image_ext,'allowed_resize'=>$item->allowed_resize,'sorting'=>$item->sorting,'created'=>$item->created_at->toDateTimeString(),'updated'=>$item->updated_at->toDateTimeString());
 			}
-			$file = $imageConfigs['appfolder'] . 'app_'.$appId.'_data.js';
+			$file = public_path('uploads/'.$app->folder) . '/app_'.$app->id.'_data.js';
 			$content = 'var jsonData = ' . json_encode($data) . ";\nvar APP_ID = ".$app->id . ";";
 			Utility::writeFile($file, $content);
 			\Lang::get('admin::news.title-page');
@@ -150,7 +153,8 @@ class AdminController extends BaseController {
 
 			// Check update and log for the app know have some new data updated
 			$scaner = new ScanerService();
-			$scaner->createService()->setPath($imageConfigs['upload_path'])->checking();
+			$scanPath = public_path('uploads/'.$app->folder);
+			$scaner->createService()->setPath($scanPath)->logging($app);
 		}
 
 		$params['msg'] = \Lang::get('admin::common.export-data4app');

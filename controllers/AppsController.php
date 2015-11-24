@@ -71,16 +71,24 @@ class AppsController extends BaseController {
 
 			$appDataForm['status'] = isset($appDataForm['status']) ? $appDataForm['status'] : 0;
 
-			$folder = public_path($appDataForm['folder']);
+			$appDataForm['folder'] = Utility::makeNiceName($appDataForm['folder'], false);
+			$folder = public_path('uploads/'.$appDataForm['folder']);
 			if (!file_exists($folder)) {
-				@mkdir($folder, 0777);
+				\File::makeDirectory($folder, 0777);
 			}
 
 			$appObject->bind($appDataForm);
 
 			$appObject->save();
 
-			$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/apps/edit/'.$appObject->id);
+			if(isset($data['redirectTo'])) {
+				$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/'. $this->_name);
+			} else if(isset($data['addNew'])) {
+				$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/'.$this->_name.'/add');
+			} else {
+				$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/'.$this->_name.'/edit/'.$appObject->id);
+			}
+			
 			echo json_encode($result);
 		}
 
@@ -114,20 +122,31 @@ class AppsController extends BaseController {
 
 		} else {
 			$appObject = Apps::find($appDataForm['id']);
+			
+			$oldFolder = $appObject->folder;
+			
 			$appDataForm['status'] = isset($appDataForm['status'])? $appDataForm['status'] : 0;
 			$appDataForm['updated_at'] = date('Y-m-d H:i:s', time());
 
 			$appDataForm['folder'] = Utility::makeNiceName($appDataForm['folder'], false);
 
-			$folder = public_path($appDataForm['folder']);
+			$folder = public_path('uploads/'. $appDataForm['folder']);
 			if (!file_exists($folder)) {
-				@mkdir($folder, 0777);
+				\File::makeDirectory($folder, 0777);
+				Utility::moveFiles(public_path('uploads/'. $oldFolder),$folder);
 			}
 
 			$appObject->bind($appDataForm);
 			$appObject->save();
 
-			$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/apps/edit/'.$appObject->id);
+			if(isset($data['redirectTo'])) {
+				$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/'. $this->_name);
+			} else if(isset($data['addNew'])) {
+				$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/'.$this->_name.'/add');
+			} else {
+				$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/'.$this->_name.'/edit/'.$appObject->id);
+			}
+			
 			echo json_encode($result);
 		}
 
@@ -136,8 +155,10 @@ class AppsController extends BaseController {
 
 	public function delete($id) {
 		$app = Apps::find($id);
-		$app->deleted = 1;
-		$app->save();
+		$success = \File::deleteDirectory(public_path('uploads/'.$app->folder));
+		$app->delete();
+		//$app->deleted = 1;
+		//$app->save();
 		return \Redirect::to('/admin/apps');
 	}
 	public function deleteforever($id) {

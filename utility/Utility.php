@@ -67,9 +67,7 @@ class Utility {
 		if(empty($path)) return false;
 
 		$abspath = public_path() . $path .'/';
-		//echo $abspath;
 		$files = self::scanDirectory($abspath);
-		//print_r($files);
 		foreach($files as $file) {
 			unlink($abspath . $file);
 		}
@@ -88,14 +86,32 @@ class Utility {
 		}
 	}
 
-	public function remove($filename) {
+	public static function moveFiles($source, $target) {
+		$files = \File::allFiles($source);
+		foreach($files as $file) {
+			if ( ! \File::move($file, $target.'/'.basename($file))) {
+			    die("Couldn't move file: ". $file . ' to '. $target.'/'.basename($file));
+			}
+		}
+		\File::deleteDirectory($source);
+	}
+	
+	public static function copyFiles($source, $target) {
+		$files = \File::allFiles($source);
+		foreach($files as $file) {
+			if ( ! \File::copy($file, $target.'/'.basename($file))) {
+			    die("Couldn't copy file: ". $file . ' to '. $target.'/'.basename($file));
+			}
+		}
+	}
+	
+	public static function remove($filename) {
 		if(is_file($filename) && file_exists($filename)) {
 			@unlink($filename);
 		}
 	}
-	public function rename($filename, $tolower = false) {
-		$prefix = 'bk.';
-		!$tolower ? rename( $filename, $prefix.$filename ) : rename( $filename, $prefix.strtolower($filename) );
+	public static function rename($filename, $tolower = false) {
+		!$tolower ? rename( $filename,$filename ) : rename( $filename, strtolower($filename) );
 	}
 
 	public static function loadDirs($path, $loadFile = false) {
@@ -140,12 +156,14 @@ class Utility {
 		$dirs = self::loadDirs($dir, $isNotChecking);
 		$data = array();
 		if($isNotChecking) {
+			// list of files
 			foreach ($dirs as $file) {
 				if($file != '.' && $file != '..') {
 					$data[] = basename($file);
 				}
 			}
 		} else {
+			// list of dirs
 			foreach($dirs as $folder=>$path) {
 				$files = self::loadDirs($path, true);
 				foreach ($files as $file) {

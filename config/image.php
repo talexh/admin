@@ -14,5 +14,5 @@ return array(
 	'upload_path' => public_path() .'/uploads/',
 	'media_upload_path' => public_path() .'/uploads/media',
 	'other_upload_path' => public_path() .'/uploads/other',
-	'appfolder' => public_path() .'/appsdata/',
+	'loggingfolder' => public_path() .'/logging/',
 );

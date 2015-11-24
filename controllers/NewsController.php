@@ -131,6 +131,17 @@ class NewsController extends BaseController {
 				$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/news/edit/'.$newsObject->id);
 			}
 
+			//copy image for app update
+			$source = public_path($newsObject->image_path. '/'. $newsObject->image_name.'.'.$newsObject->image_ext);
+			$target = $newsObject->image_name.'.'.$newsObject->image_ext;
+			$targetPath = public_path('uploads/'.$newsObject->Apps->folder).'/';
+			Utility::copy($source, $target, $targetPath);
+			
+			// Copy sound
+			$source = public_path( 'uploads/media/'. $newsObject->sound);
+			$target = $newsObject->sound;
+			Utility::copy($source, $target, $targetPath);
+			
 			echo json_encode($result);
 		}
 
@@ -167,7 +178,9 @@ class NewsController extends BaseController {
 			die;
 		} else {
 			$newsObject = News::find($newsDataForm['id']);
-
+			$oldImage = $newsObject->image_name.'.'.$newsObject->image_ext;
+			$oldSound = basename($newsObject->sound);
+			
 			$service = new UploadService();
 
 			$uploader = $service->createService();
@@ -220,6 +233,26 @@ class NewsController extends BaseController {
 				$result = array('status'=>'OK', 'msg'=>'Success', 'url'=>'/admin/'. $this->_name .'/edit/'.$newsObject->id);
 			}
 
+			//copy image for app update
+			$source = public_path($newsObject->image_path. '/'. $newsObject->image_name.'.'.$newsObject->image_ext);
+			$target = basename($source);
+			$targetPath = public_path('uploads/'.$newsObject->Apps->folder).'/';
+			Utility::copy($source, $target, $targetPath);
+			
+			// Copy sound
+			$source = public_path().$newsObject->sound;
+			$target = basename($source);
+			
+			
+			Utility::copy($source, $target, $targetPath);
+			
+			if(!empty($image)) {
+				Utility::remove($targetPath.$oldImage);
+			}
+			if(!empty($file)) {
+				Utility::remove($targetPath.$oldSound);
+			}
+			
 			echo json_encode($result);
 		}
 

@@ -24,9 +24,10 @@ class Scaner {
 		return $this->path;
 	}
 
-	public function checking() {
+	public function logging($app = null) {
 		$imageConfigs = \Config::get('admin::image');
-		$files = Utility::scanDirectory($this->path);
+		//$files = Utility::scanDirectory($this->path);
+		$files = \File::allFiles($this->path);
 		$listLogs = array();
 		$i = 0;
 		$j = 0;
@@ -60,23 +61,23 @@ class Scaner {
 				}
 			}
 		}
-		$info = Utility::fileInfo($imageConfigs['appfolder'].'data.js');
+		//$info = Utility::fileInfo($imageConfigs['loggingfolder'].'data.js');
 
-		if($i > 0) {
+		/*if($i > 0) {
 			$i = $i + 1;
 			$someNew .= ',{"last_modified":"' . $info['date'] . '","filename":"' . url('/appsdata/data.js') . '"}';
 		}
 		if($j > 0) {
 			$j = $j + 1;
 			$log4AllData .= ',{"last_modified":"' . $info['date'] . '","filename":"' . url('/appsdata/data.js') . '"}';
-		}
+		}*/
 		$someNew .= '],"date":"'.date('Y-m-d',time()).'","total":'.$i.'}';
 		$log4AllData .= '],"date":"'.date('Y-m-d',time()).'","total":'.$j.'}';
-		if(!file_exists($imageConfigs['appfolder'])) {
-			Utility::createFolder( $imageConfigs['appfolder'] );
+		if(!file_exists($imageConfigs['loggingfolder'])) {
+			Utility::createFolder( $imageConfigs['loggingfolder'] );
 		}
-		Utility::writeFile( $imageConfigs['appfolder'] . 'logger4all.json', $log4AllData);
-		Utility::writeFile( $imageConfigs['appfolder'] . 'logger.json', $someNew);
+		Utility::writeFile( $imageConfigs['loggingfolder'] . 'app_'.$app->id.'_logger4all.json', $log4AllData);
+		Utility::writeFile( $imageConfigs['loggingfolder'] . 'app_'.$app->id.'_logger.json', $someNew);
 	}
 
 	public function writeLog4FirstDownload() {
