@@ -123,7 +123,7 @@ class AdminController extends BaseController {
 					$data['categories'][] = array('id'=>$item->id,'title'=>$item->title, 'image_name'=>$item->image_name.'.'.$item->image_ext,'allowed_resize'=>$item->allowed_resize,'sorting'=>$item->sorting,'created'=>$item->created_at->toDateTimeString(),'updated'=>$item->updated_at->toDateTimeString());
 				}
 				$file = public_path('uploads/'.$app->folder) . '/app_'.$app->id.'_data.js';
-				$content = 'var jsonData = ' . json_encode($data) . ";\nvar APP_ID = ".$app->id . ";";
+				$content = 'var jsonData = ' . json_encode($data) . ";\nvar APP_ID = ".$app->id . ",\n\tTOKEN_ID = '".$app->uuid."';";
 				Utility::writeFile($file, $content);
 				\Lang::get('admin::news.title-page');
 				$params['exportMessage'] = \Lang::get('admin::common.export-success');
@@ -146,7 +146,7 @@ class AdminController extends BaseController {
 				$data['categories'][] = array('id'=>$item->id,'title'=>$item->title, 'image_name'=>$item->image_name.'.'.$item->image_ext,'allowed_resize'=>$item->allowed_resize,'sorting'=>$item->sorting,'created'=>$item->created_at->toDateTimeString(),'updated'=>$item->updated_at->toDateTimeString());
 			}
 			$file = public_path('uploads/'.$app->folder) . '/app_'.$app->id.'_data.js';
-			$content = 'var jsonData = ' . json_encode($data) . ";\nvar APP_ID = ".$app->id . ";";
+			$content = 'var jsonData = ' . json_encode($data) . ";\nvar APP_ID = ".$app->id . ",\n\tTOKEN_ID = '".$app->uuid."';";
 			Utility::writeFile($file, $content);
 			\Lang::get('admin::news.title-page');
 			$params['exportMessage'] = \Lang::get('admin::common.export-success');
